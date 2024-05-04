@@ -10,7 +10,7 @@ galaxy_info:
 
   license: MIT
   min_ansible_version: '1.16'
-  namespace: pako
+  namespace: pako_23
 
   platforms:
     - name: Ubuntu
