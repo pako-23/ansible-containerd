@@ -1,0 +1,61 @@
+---
+- name: Install packages
+  ansible.builtin.apt:
+    install_recommends: false
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+
+- name: Check if Docker key file exists
+  ansible.builtin.stat:
+    path: /etc/apt/keyrings/docker.gpg
+  register: docker_key_file
+
+- name: Download Docker key file
+  ansible.builtin.get_url:
+    dest: /tmp/docker.gpg
+    group: root
+    mode: '0644'
+    owner: root
+    url: https://download.docker.com/linux/{{ containerd_distro }}/gpg
+  when: not docker_key_file.stat.exists
+
+- name: Add Docker repo key
+  ansible.builtin.command:
+    cmd: gpg --dearmor -o /etc/apt/keyrings/docker.gpg /tmp/docker.gpg
+    creates: /etc/apt/keyrings/docker.gpg
+  when: not docker_key_file.stat.exists
+
+- name: Add Docker repository
+  ansible.builtin.apt_repository:
+    repo: deb [{{ repo_options }}] {{ repo_link }} {{ codename }} stable
+    filename: docker
+  vars:
+    codename: "{{ ansible_facts['lsb']['codename'] }}"
+    repo_link: https://download.docker.com/linux/{{ containerd_distro }}
+    repo_options: arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg
+
+- name: Install containerd
+  ansible.builtin.apt:
+    install_recommends: false
+    name: containerd.io
+
+- name: Configure containerd
+  ansible.builtin.copy:
+    dest: /etc/containerd/config.toml
+    group: root
+    mode: '0644'
+    owner: root
+    src: config.toml
+  notify: Restart containerd
+
+- name: Flush handlers to apply containerd configurations
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable containerd service
+  ansible.builtin.service:
+    enabled: true
+    name: containerd
+    state: started

@@ -1,0 +1,20 @@
+---
+dependencies: []
+
+galaxy_info:
+  author: pako-23
+  description: A role to install containerd in Linux.
+
+  galaxy_tags:
+    - containerd
+
+  license: MIT
+  min_ansible_version: '1.16'
+  namespace: pako
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+
+  role_name: containerd
