@@ -19,6 +19,8 @@ provisioner:
     defaults:
       stdout_callback: yaml
 
+role_name_check: 1
+
 verifier:
   name: testinfra
   options:
