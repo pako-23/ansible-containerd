@@ -9,4 +9,4 @@
         update_cache: true
 
   roles:
-    - role: pako_23.containerd
+    - role: pako-23.containerd
